@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Explore destinations | Smart Tourism{% endblock %}
+{% block body %}
+<main class="app-shell">
+    <section class="search-panel" aria-label="Destination search">
+        <a class="brand" href="{{ url_for('search.index') }}"><span>ST</span> Smart Tourism</a>
+        <p class="eyebrow">EXPLORE MORE</p>
+        <h1>Plan a memorable trip.</h1>
+        <p class="intro">Search any destination to discover nearby attractions on the map.</p>
+        <form id="destination-search" class="destination-search">
+            <label for="destination">Destination</label>
+            <div class="search-row"><input id="destination" name="destination" type="search" placeholder="e.g. Kolkata, India" autocomplete="off" required><button type="submit">Search</button></div>
+        </form>
+        <p id="search-status" class="search-status" role="status" aria-live="polite">Enter a destination to begin.</p>
+        <section class="results-section" aria-labelledby="results-title">
+            <div class="section-heading"><h2 id="results-title">Nearby attractions</h2><span id="result-count">0 places</span></div>
+            <div id="destination-results" class="destination-results"><p class="empty-state">Your search results will appear here.</p></div>
+        </section>
+    </section>
+    <section class="map-workspace" aria-label="Interactive destination map">
+        <div id="tourism-map" aria-label="Map showing destinations and nearby attractions"></div>
+        <div class="map-note"><span class="map-dot"></span> Map data © OpenStreetMap contributors</div>
+    </section>
+</main>
+{% endblock %}
