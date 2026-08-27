@@ -1,25 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Explore destinations | Smart Tourism{% endblock %}
+{% block title %}Smart Tourism | Explore Destinations{% endblock %}
+
 {% block body %}
 <main class="app-shell">
-    <section class="search-panel" aria-label="Destination search">
-        <a class="brand" href="{{ url_for('search.index') }}"><span>ST</span> Smart Tourism</a>
-        <p class="eyebrow">EXPLORE MORE</p>
-        <h1>Plan a memorable trip.</h1>
-        <p class="intro">Search any destination to discover nearby attractions on the map.</p>
-        <form id="destination-search" class="destination-search">
-            <label for="destination">Destination</label>
-            <div class="search-row"><input id="destination" name="destination" type="search" placeholder="e.g. Kolkata, India" autocomplete="off" required><button type="submit">Search</button></div>
+    <aside class="search-panel">
+        <header class="panel-header">
+            <a class="brand" href="{{ url_for('search.index') }}">
+                <span class="brand-badge">ST</span>
+                <span class="brand-name">Smart Tourism</span>
+            </a>
+            <div class="hero-text">
+                <span class="eyebrow">EXPLORE MORE</span>
+                <h1>Plan a memorable trip.</h1>
+                <p class="intro">Search any city or landmark to discover curated nearby attractions.</p>
+            </div>
+        </header>
+
+        <form id="destination-search" class="search-box">
+            <div class="input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input 
+                    id="destination" 
+                    name="destination" 
+                    type="search" 
+                    placeholder="Search e.g. Kolkata, Barasat, Digha..." 
+                    autocomplete="off" 
+                    required
+                >
+                <button type="submit" id="search-btn">
+                    <span>Search</span>
+                </button>
+            </div>
+            <p id="search-status" class="search-status" role="status" aria-live="polite">Enter a destination to begin.</p>
         </form>
-        <p id="search-status" class="search-status" role="status" aria-live="polite">Enter a destination to begin.</p>
-        <section class="results-section" aria-labelledby="results-title">
-            <div class="section-heading"><h2 id="results-title">Nearby attractions</h2><span id="result-count">0 places</span></div>
-            <div id="destination-results" class="destination-results"><p class="empty-state">Your search results will appear here.</p></div>
+
+        <section class="results-section">
+            <div class="results-header">
+                <h2>Nearby Attractions</h2>
+                <span id="result-count" class="count-pill">0 places</span>
+            </div>
+            <div id="destination-results" class="results-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📍</div>
+                    <p>Your search results will appear here.</p>
+                </div>
+            </div>
         </section>
-    </section>
-    <section class="map-workspace" aria-label="Interactive destination map">
-        <div id="tourism-map" aria-label="Map showing destinations and nearby attractions"></div>
-        <div class="map-note"><span class="map-dot"></span> Map data © OpenStreetMap contributors</div>
+    </aside>
+
+    <section class="map-workspace" aria-label="Interactive Map">
+        <div id="tourism-map"></div>
+        <div class="map-footer">
+            <span class="pulse-indicator"></span>
+            <span>Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a></span>
+        </div>
     </section>
 </main>
 {% endblock %}
