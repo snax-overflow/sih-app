@@ -1,69 +1,128 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Elements
+  // Container Elements
   const loginSection = document.getElementById('loginSection');
   const registerSection = document.getElementById('registerSection');
   const goToRegister = document.getElementById('goToRegister');
   const goToLogin = document.getElementById('goToLogin');
 
+  // Form Elements
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
 
-  // Toggle to Register
-  goToRegister.addEventListener('click', () => {
-    loginSection.classList.add('hidden');
-    registerSection.classList.remove('hidden');
-  });
+  // Toggle to Register View
+  if (goToRegister) {
+    goToRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginSection.classList.add('hidden');
+      registerSection.classList.remove('hidden');
+    });
+  }
 
-  // Toggle to Login
-  goToLogin.addEventListener('click', () => {
-    registerSection.classList.add('hidden');
-    loginSection.classList.remove('hidden');
-  });
+  // Toggle to Login View
+  if (goToLogin) {
+    goToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      registerSection.classList.add('hidden');
+      loginSection.classList.remove('hidden');
+    });
+  }
 
-  // Login Submit Handler
-  loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    const btn = document.getElementById('loginBtn');
+  // Handle User Registration
+  if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    if (!username || !password) {
-      alert('Please fill in both fields.');
-      return;
-    }
+      const emailInput = document.getElementById('regEmail');
+      const passwordInput = document.getElementById('regPassword');
+      const usernameInput = document.getElementById('regUsername');
+      const btn = document.getElementById('regBtn');
 
-    btn.innerText = 'Signing In...';
-    btn.disabled = true;
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value : '';
+      const username = usernameInput ? usernameInput.value.trim() : '';
 
-    console.log('Login Payload ready for backend:', { username, password });
+      if (!email || !password) {
+        alert('Please provide both an email and password.');
+        return;
+      }
 
-    setTimeout(() => {
-      btn.innerText = 'Sign In';
-      btn.disabled = false;
-    }, 1200);
-  });
+      btn.innerText = 'Creating Account...';
+      btn.disabled = true;
 
-  // Register Submit Handler
-  registerForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const username = document.getElementById('regUsername').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const password = document.getElementById('regPassword').value;
-    const btn = document.getElementById('regBtn');
+      try {
+        const response = await fetch('/api/v1/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, username })
+        });
 
-    if (!username || !email || !password) {
-      alert('Please fill in all registration fields.');
-      return;
-    }
+        const data = await response.json();
 
-    btn.innerText = 'Creating Account...';
-    btn.disabled = true;
+        if (!response.ok) {
+          throw new Error(data.error || data.message || 'Registration failed.');
+        }
 
-    console.log('Register Payload ready for backend:', { username, email, password });
+        alert('Account created successfully! Please sign in.');
+        
+        // Switch back to Login view
+        registerSection.classList.add('hidden');
+        loginSection.classList.remove('hidden');
+        registerForm.reset();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.innerText = 'Create Account';
+        btn.disabled = false;
+      }
+    });
+  }
 
-    setTimeout(() => {
-      btn.innerText = 'Create Account';
-      btn.disabled = false;
-    }, 1200);
-  });
+  // Handle User Login
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const identifierInput = document.getElementById('loginUsername') || document.getElementById('loginEmail');
+      const passwordInput = document.getElementById('loginPassword');
+      const btn = document.getElementById('loginBtn');
+
+      const email = identifierInput ? identifierInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value : '';
+
+      if (!email || !password) {
+        alert('Please fill in all login fields.');
+        return;
+      }
+
+      btn.innerText = 'Signing In...';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/api/v1/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || data.message || 'Invalid email or password.');
+        }
+
+        // Store JWT token if returned by backend
+        if (data.token || data.access_token) {
+          localStorage.setItem('token', data.token || data.access_token);
+        }
+
+        // Redirect to main explore dashboard
+        window.location.href = '/';
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.innerText = 'Sign In';
+        btn.disabled = false;
+      }
+    });
+  }
 });
