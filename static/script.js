@@ -1,4 +1,59 @@
 document.addEventListener("DOMContentLoaded", () => {
+  let searchCount = 0;
+
+  // --- Profile & Authentication Logic ---
+  const profileTrigger = document.querySelector("#open-profile-trigger");
+  const profileOverlay = document.querySelector("#profile-modal-overlay");
+  const closeProfileBtn = document.querySelector("#close-profile-btn");
+  const quickLogoutBtn = document.querySelector("#logout-btn");
+  const drawerLogoutBtn = document.querySelector("#drawer-logout-btn");
+
+  const userDisplayName = document.querySelector("#user-display-name");
+  const drawerUserName = document.querySelector("#drawer-user-name");
+  const drawerUserEmail = document.querySelector("#drawer-user-email");
+  const statSearches = document.querySelector("#stat-searches");
+  const statSaved = document.querySelector("#stat-saved");
+
+  // Retrieve user email/handle from storage if set during login
+  const storedUser = localStorage.getItem("user_email") || "Explorer";
+  const displayTitle = storedUser.includes("@") ? storedUser.split("@")[0] : storedUser;
+
+  if (userDisplayName) userDisplayName.textContent = displayTitle;
+  if (drawerUserName) drawerUserName.textContent = displayTitle;
+  if (drawerUserEmail) drawerUserEmail.textContent = storedUser.includes("@") ? storedUser : `${storedUser}@local.app`;
+
+  // Open & Close Profile Drawer
+  if (profileTrigger && profileOverlay) {
+    profileTrigger.addEventListener("click", () => {
+      profileOverlay.classList.remove("hidden");
+    });
+  }
+
+  if (closeProfileBtn && profileOverlay) {
+    closeProfileBtn.addEventListener("click", () => {
+      profileOverlay.classList.add("hidden");
+    });
+  }
+
+  if (profileOverlay) {
+    profileOverlay.addEventListener("click", (e) => {
+      if (e.target === profileOverlay) {
+        profileOverlay.classList.add("hidden");
+      }
+    });
+  }
+
+  // Unified Logout Action
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_email");
+    window.location.href = "/logout";
+  };
+
+  if (quickLogoutBtn) quickLogoutBtn.addEventListener("click", handleLogout);
+  if (drawerLogoutBtn) drawerLogoutBtn.addEventListener("click", handleLogout);
+
+  // --- Leaflet Map Workspace ---
   const map = L.map("tourism-map", {
     zoomControl: true,
     attributionControl: false
@@ -141,6 +196,11 @@ document.addEventListener("DOMContentLoaded", () => {
       mainMarker.openPopup();
       renderResults(payload.nearby || [], placeMarkers);
       setStatus(`Showing ${payload.main.name} and ${(payload.nearby || []).length} nearby places.`);
+
+      // Update Session Stats
+      searchCount += 1;
+      if (statSearches) statSearches.textContent = searchCount;
+      if (statSaved) statSaved.textContent = payload.nearby ? payload.nearby.length : 0;
     } catch (err) {
       setStatus(err.message, true);
       results.innerHTML = `<div class="empty-state"><p>Try searching another city or landmark.</p></div>`;

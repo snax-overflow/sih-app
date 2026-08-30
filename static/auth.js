@@ -1,13 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Container Elements
   const loginSection = document.getElementById('loginSection');
   const registerSection = document.getElementById('registerSection');
   const goToRegister = document.getElementById('goToRegister');
   const goToLogin = document.getElementById('goToLogin');
 
-  // Form Elements
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
+
+  // Reusable Toast Notification Generator
+  function showToast(message, type = 'success') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const icon = type === 'success' ? '✓' : '!';
+    toast.innerHTML = `
+      <span class="toast-icon">${icon}</span>
+      <span class="toast-msg">${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto dismiss after 3.5 seconds
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 260);
+    }, 3500);
+  }
 
   // Toggle to Register View
   if (goToRegister) {
@@ -42,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const username = usernameInput ? usernameInput.value.trim() : '';
 
       if (!email || !password) {
-        alert('Please provide both an email and password.');
+        showToast('Please provide both an email and password.', 'error');
         return;
       }
 
@@ -62,14 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(data.error || data.message || 'Registration failed.');
         }
 
-        alert('Account created successfully! Please sign in.');
+        showToast('Account created successfully! Please sign in.', 'success');
         
-        // Switch back to Login view
-        registerSection.classList.add('hidden');
-        loginSection.classList.remove('hidden');
-        registerForm.reset();
+        // Smooth switch back to Login view
+        setTimeout(() => {
+          registerSection.classList.add('hidden');
+          loginSection.classList.remove('hidden');
+          registerForm.reset();
+        }, 1200);
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, 'error');
       } finally {
         btn.innerText = 'Create Account';
         btn.disabled = false;
@@ -90,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = passwordInput ? passwordInput.value : '';
 
       if (!email || !password) {
-        alert('Please fill in all login fields.');
+        showToast('Please enter your credentials.', 'error');
         return;
       }
 
@@ -110,15 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(data.error || data.message || 'Invalid email or password.');
         }
 
-        // Store JWT token if returned by backend
         if (data.token || data.access_token) {
           localStorage.setItem('token', data.token || data.access_token);
         }
 
-        // Redirect to main explore dashboard
-        window.location.href = '/';
+        showToast('Signed in successfully! Redirecting...', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 900);
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, 'error');
       } finally {
         btn.innerText = 'Sign In';
         btn.disabled = false;

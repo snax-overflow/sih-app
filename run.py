@@ -3,7 +3,9 @@ import flask
 
 app = create_app()
 
-
+@app.route('/')
+def home():
+    return flask.redirect('/login')
 @app.route('/login')
 def login():
     return flask.render_template('auth.html')
